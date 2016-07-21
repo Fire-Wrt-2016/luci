@@ -8,7 +8,7 @@ local dsp = require "luci.dispatcher"
 m = Map("users", translate("Add New User"),translate("User Configuration"))
 
 local fs = require "nixio.fs"
-local groups = {"user", "admin", "other"}
+local groups = {"users", "admin", "other"}
 local menu = dsp.load_menus()
 local usw = require "luci.users"
 require "uci"
