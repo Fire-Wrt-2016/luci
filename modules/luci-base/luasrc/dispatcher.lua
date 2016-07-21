@@ -602,38 +602,30 @@ function parse_to_file(menu,item)
  return
 end
 
---[[
-function chk_access(user,menu,pos)
-  if user ~= "root" and menu == "System" and pos < 30 then return true end
- return false
-end]]--
-
 function chk_access(con,sec,pos)
   sec = sec:gsub("%s+", "_")
+  local user = get_user()
   if user == "root" or user == "nobody" then return true end
   if con == "users" then return true end
   if con == "network" or con == "uci" or con == "logout" then return true end
   if con == "status" and sec == "Overview" or sec == "Status" then return true end
   if con == "services" and sec == "Services" then return true end
-  if pos == 30 and sec == "System" then sec = sec.."_menus" end
+  if pos == 30 and sec == "System" then sec= sec .."_menus" end
   if not fs.access("/usr/lib/lua/luci/users.lua") then return true end
   local menu = {}
   local usw = require "luci.users"
-  local user = get_user()
   menu = usw.hide_menus(user,con) or {}
   if menu and #menu < 1 then return false end
-  for i,v in pairs(menu) do
-    if v == sec then return true end
-  end
-  --if util.contains(menu, sec) then return true end
+  if util.contains(menu, sec) then return true end
  return false
 end
 
 function entry(path, target, title, order)
 	local c = {}
         if path[2] and title then
+	local pos = order or 1
 	 parse_to_file(path[2],title)
-         access = chk_access(path[2],title)
+         access = chk_access(path[2],title,pos)
         end
 
 	if not access then return c end
@@ -645,18 +637,6 @@ function entry(path, target, title, order)
 	c.module = getfenv(2)._NAME
 	return c
 end
---[[
-function entry(path, target, title, order)
-	local c = node(unpack(path))
-
-	c.target = target
-	c.title  = title
-	c.order  = order
-	c.module = getfenv(2)._NAME
-
-	return c
-end
-]]--
 -- enabling the node.
 
 function get(...)
